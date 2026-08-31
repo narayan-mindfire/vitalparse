@@ -1,0 +1,11 @@
+{
+  "name": "vitalparse",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "start:functions": "npm run start --workspace=apps/functions"
+  }
+}
