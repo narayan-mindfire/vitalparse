@@ -6,6 +6,8 @@
     "apps/*"
   ],
   "scripts": {
-    "start:functions": "npm run start --workspace=apps/functions"
+    "start:functions": "npm run start --workspace=apps/functions",
+    "start:api": "npm run start --workspace=apps/api",
+    "dev:api": "npm run dev --workspace=apps/api"
   }
 }
