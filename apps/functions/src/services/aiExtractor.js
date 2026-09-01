@@ -1,6 +1,12 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance = null;
+function getAI() {
+  if (!aiInstance) {
+    aiInstance = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  }
+  return aiInstance;
+}
 
 const SYSTEM_INSTRUCTION = `
 You are a specialized clinical document parser. Your goal is to extract Blood Pressure (BP) and HbA1c (A1C) readings from the provided text or document.
@@ -39,8 +45,8 @@ async function extractClinicalData({ documentText, fileBase64, mimeType }) {
       throw new Error("No document content provided.");
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+    const response = await getAI().models.generateContent({
+      model: 'gemini-3.6-flash',
       contents: contents,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -48,7 +54,7 @@ async function extractClinicalData({ documentText, fileBase64, mimeType }) {
       }
     });
 
-    const resultText = response.text();
+    const resultText = response.text;
     return JSON.parse(resultText);
   } catch (error) {
     console.error("Error extracting clinical data:", error);
