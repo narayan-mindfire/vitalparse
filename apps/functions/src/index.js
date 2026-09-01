@@ -32,7 +32,7 @@ app.http('processDocument', {
         jsonBody: result
       };
     } catch (error) {
-      context.log.error("Error processing document:", error);
+      context.error("Error processing document:", error);
       return {
         status: 500,
         jsonBody: {
