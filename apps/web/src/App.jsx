@@ -26,10 +26,25 @@ function App() {
   };
 
   useEffect(() => {
+    // Initial fetch on component mount
     fetchDocuments();
-    const interval = setInterval(fetchDocuments, 10000); // Auto refresh every 10s
-    return () => clearInterval(interval);
   }, []);
+
+  const hasPending = documents.some(d => d.status === 'Pending');
+
+  useEffect(() => {
+    let interval;
+    // Only poll every 3 seconds if there are documents still processing
+    if (hasPending) {
+      interval = setInterval(() => {
+        fetchDocuments();
+      }, 3000); 
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [hasPending]);
 
   const totalProcessed = documents.length;
   const successCount = documents.filter(d => d.status === 'Success').length;
