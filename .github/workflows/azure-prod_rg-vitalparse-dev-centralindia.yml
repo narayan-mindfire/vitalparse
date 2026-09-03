@@ -33,21 +33,19 @@ jobs:
       - name: 'Resolve Project Dependencies Using Npm'
         shell: bash
         run: |
-          mv package.json package.json.bak
-          mv package-lock.json package-lock.json.bak
-          pushd '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          npm install
+          mkdir -p ../func-deploy
+          cp -r ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/* ../func-deploy/
+          cp -r ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/.* ../func-deploy/ 2>/dev/null || true
+          cd ../func-deploy
+          npm install --production
           npm run build --if-present
           npm run test --if-present
-          popd
-          mv package.json.bak package.json
-          mv package-lock.json.bak package-lock.json
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          path: ../func-deploy
 
   deploy:
     runs-on: windows-latest
