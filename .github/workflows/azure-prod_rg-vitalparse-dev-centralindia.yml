@@ -34,7 +34,7 @@ jobs:
         shell: pwsh
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          npm install --workspaces=false
+          mv ../../package.json ../../package.json.bak && npm install && mv ../../package.json.bak ../../package.json
           npm run build --if-present
           npm run test --if-present
           popd
