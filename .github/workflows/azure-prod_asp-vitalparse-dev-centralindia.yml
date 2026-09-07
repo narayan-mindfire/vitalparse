@@ -53,7 +53,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'asp-vitalparse-dev-centralindia'
+          app-name: 'app-web-vitalparse-dev-cin'
           slot-name: 'Production'
           package: .
           
