@@ -28,6 +28,7 @@ jobs:
       - name: Deploy Azure Infrastructure
         uses: azure/arm-deploy@v2
         with:
+          scope: resourcegroup
           resourceGroupName: rg-vitalparse-dev-centralindia
           template: ./infra/main.bicep
 
