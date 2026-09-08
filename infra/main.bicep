@@ -35,7 +35,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 // 3. PostgreSQL Flexible Server
-resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' = {
+resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
   name: pgName
   location: location
   sku: {
