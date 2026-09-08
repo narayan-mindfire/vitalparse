@@ -10,8 +10,31 @@ on:
   workflow_dispatch:
 
 jobs:
+  infra:
+    runs-on: ubuntu-latest
+    needs: infra
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: 5146fde3-de21-4b56-b58c-e869d4010a5e
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B1E4F6EDCC6E44C886142D631B7B427E }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D505FA421C4F4F49BDDD0369458287D2 }}
+
+      - name: Deploy Azure Infrastructure
+        uses: azure/arm-deploy@v2
+        with:
+          resourceGroupName: rg-vitalparse-dev-centralindia
+          template: ./infra/main.bicep
+
   build:
     runs-on: ubuntu-latest
+    needs: infra
     permissions:
       contents: read #This is required for actions/checkout
 
