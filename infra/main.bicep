@@ -43,7 +43,6 @@ resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
     tier: 'Burstable'
   }
   properties: {
-    version: '16'
     storage: {
       storageSizeGB: 32
     }
