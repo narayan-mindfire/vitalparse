@@ -9,6 +9,7 @@ on:
       - azure/prod
     paths:
       - 'apps/functions/**'
+      - '.github/workflows/azure-prod_rg-vitalparse-dev-centralindia.yml'
   workflow_dispatch:
 
 env:
