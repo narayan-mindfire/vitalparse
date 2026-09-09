@@ -32,6 +32,10 @@ jobs:
           resourceGroupName: rg-vitalparse-dev-centralindia
           template: ./infra/main.bicep
 
+      - name: Wait for SCM Container Restart
+        run: sleep 60
+
+
   build:
     runs-on: ubuntu-latest
     permissions:
