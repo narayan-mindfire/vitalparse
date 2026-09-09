@@ -101,6 +101,19 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
     siteConfig: {
       linuxFxVersion: 'NODE|22-lts'
       appCommandLine: 'npm run start:api'
+      healthCheckPath: '/api/health'
+      appSettings: [
+        { name: 'PORT', value: '8080' }
+        { name: 'DB_HOST', value: postgres.properties.fullyQualifiedDomainName }
+        { name: 'DB_PORT', value: '5432' }
+        { name: 'DB_NAME', value: 'postgres' }
+        { name: 'DB_USER', value: 'postgres' }
+        { name: 'DB_SSL', value: 'true' }
+        { name: 'DB_PASSWORD', value: '@Microsoft.KeyVault(VaultName=${kvName};SecretName=psql-admin-password)' }
+        { name: 'GEMINI_API_KEY', value: '@Microsoft.KeyVault(VaultName=${kvName};SecretName=gemini-api-key)' }
+        { name: 'AZURE_FUNCTION_URL', value: 'https://${funcAppName}.azurewebsites.net/api/process-document' }
+        { name: 'SCM_DO_BUILD_DURING_DEPLOYMENT', value: 'true' }
+      ]
     }
   }
   identity: {
@@ -127,7 +140,13 @@ resource funcApp 'Microsoft.Web/sites@2022-09-01' = {
     serverFarmId: funcPlan.id
     siteConfig: {
       netFrameworkVersion: 'v8.0'
-      nodeVersion: '~20'
+      nodeVersion: '~22'
+      appSettings: [
+        { name: 'FUNCTIONS_WORKER_RUNTIME', value: 'node' }
+        { name: 'AzureWebJobsStorage', value: 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}' }
+        { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
+        { name: 'GEMINI_API_KEY', value: '@Microsoft.KeyVault(VaultName=${kvName};SecretName=GeminiApiKey)' }
+      ]
     }
   }
   identity: {
