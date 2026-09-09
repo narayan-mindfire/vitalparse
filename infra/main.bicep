@@ -113,6 +113,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
         { name: 'GEMINI_API_KEY', value: '@Microsoft.KeyVault(VaultName=${kvName};SecretName=gemini-api-key)' }
         { name: 'AZURE_FUNCTION_URL', value: 'https://${funcAppName}.azurewebsites.net/api/process-document' }
         { name: 'SCM_DO_BUILD_DURING_DEPLOYMENT', value: 'true' }
+        { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
       ]
     }
   }
