@@ -77,4 +77,4 @@ jobs:
           app-name: 'func-vitalparse-dev-cin'
           slot-name: 'Production'
           package: '.'
-          
+           
