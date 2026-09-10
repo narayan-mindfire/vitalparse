@@ -6,7 +6,6 @@ param kvName string = 'kv-vitalparse-dev-cin'
 param saName string = 'stvitalparsedevcin'
 param lawName string = 'law-vitalparse-dev-cin'
 param appiName string = 'appi-vitalparse-dev-cin'
-param logicAppName string = 'logic-vitalparse-dev-cin'
 
 // 1. Storage Account
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
