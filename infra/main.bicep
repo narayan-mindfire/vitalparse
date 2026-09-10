@@ -146,6 +146,8 @@ resource funcApp 'Microsoft.Web/sites@2022-09-01' = {
       nodeVersion: '~22'
       appSettings: [
         { name: 'FUNCTIONS_WORKER_RUNTIME', value: 'node' }
+        { name: 'FUNCTIONS_EXTENSION_VERSION', value: '~4' }
+        { name: 'WEBSITE_NODE_DEFAULT_VERSION', value: '~20' }
         { name: 'AzureWebJobsStorage', value: 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}' }
         { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
         { name: 'ApplicationInsightsAgent_EXTENSION_VERSION', value: '~3' }
