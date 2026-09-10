@@ -7,17 +7,13 @@ param saName string = 'stvitalparsedevcin'
 param lawName string = 'law-vitalparse-dev-cin'
 param appiName string = 'appi-vitalparse-dev-cin'
 
-// 1. Storage Account
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: saName
   location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
+  sku: { name: 'Standard_LRS' }
   kind: 'StorageV2'
 }
 
-// 2. Log Analytics & App Insights
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: lawName
   location: location
@@ -33,7 +29,6 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-// 3. PostgreSQL Flexible Server
 resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
   name: pgName
   location: location
@@ -42,13 +37,11 @@ resource postgres 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
     tier: 'Burstable'
   }
   properties: {
-    storage: {
-      storageSizeGB: 32
-    }
+    storage: { storageSizeGB: 32 }
   }
 }
 
-// 4. Key Vault
+// 4. Key Vault (Switched to RBAC to prevent access wipe)
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: kvName
   location: location
@@ -58,48 +51,39 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
       name: 'standard'
     }
     tenantId: subscription().tenantId
-    enableRbacAuthorization: false
+    enableRbacAuthorization: true
   }
 }
 
-// 4b. Key Vault Access Policies (Additive mode to prevent wiping manual user access)
-resource kvAccessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-  name: 'add'
-  parent: keyVault
+// Key Vault Secrets User Role Assignments
+resource kvRoleWebApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, webApp.id, 'KeyVaultSecretsUser')
+  scope: keyVault
   properties: {
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        objectId: webApp.identity.principalId
-        permissions: {
-          secrets: ['get', 'list']
-        }
-      }
-      {
-        tenantId: subscription().tenantId
-        objectId: funcApp.identity.principalId
-        permissions: {
-          secrets: ['get', 'list']
-        }
-      }
-    ]
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
+    principalId: webApp.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
-// 5. App Service Plan (Web)
+resource kvRoleFuncApp 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, funcApp.id, 'KeyVaultSecretsUser')
+  scope: keyVault
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
+    principalId: funcApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 resource webPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: 'plan-web-vitalparse-dev-cin'
   location: location
-  sku: {
-    name: 'B1'
-  }
+  sku: { name: 'B1' }
   kind: 'linux'
-  properties: {
-    reserved: true
-  }
+  properties: { reserved: true }
 }
 
-// 6. Web App
 resource webApp 'Microsoft.Web/sites@2022-09-01' = {
   name: webAppName
   location: location
@@ -127,12 +111,9 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       ]
     }
   }
-  identity: {
-    type: 'SystemAssigned'
-  }
+  identity: { type: 'SystemAssigned' }
 }
 
-// 7. App Service Plan (Function App Consumption)
 resource funcPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: 'plan-func-vitalparse-dev-cin'
   location: location
@@ -142,7 +123,6 @@ resource funcPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   }
 }
 
-// 8. Function App
 resource funcApp 'Microsoft.Web/sites@2022-09-01' = {
   name: funcAppName
   location: location
@@ -158,11 +138,9 @@ resource funcApp 'Microsoft.Web/sites@2022-09-01' = {
         { name: 'WEBSITE_NODE_DEFAULT_VERSION', value: '~20' }
         { name: 'AzureWebJobsStorage', value: 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}' }
         { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', value: appInsights.properties.ConnectionString }
-        { name: 'GEMINI_API_KEY', value: '@Microsoft.KeyVault(VaultName=${kvName};SecretName=GeminiApiKey)' }
+        { name: 'GEMINI_API_KEY', value: '@Microsoft.KeyVault(VaultName=${kvName};SecretName=gemini-api-key)' }
       ]
     }
   }
-  identity: {
-    type: 'SystemAssigned'
-  }
+  identity: { type: 'SystemAssigned' }
 }
